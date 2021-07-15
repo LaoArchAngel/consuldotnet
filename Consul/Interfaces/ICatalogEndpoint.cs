@@ -43,5 +43,8 @@ namespace Consul
         Task<QueryResult<CatalogService[]>> Service(string service, string tag, QueryOptions q, CancellationToken ct = default(CancellationToken));
         Task<QueryResult<Dictionary<string, string[]>>> Services(CancellationToken ct = default(CancellationToken));
         Task<QueryResult<Dictionary<string, string[]>>> Services(QueryOptions q, CancellationToken ct = default(CancellationToken));
+        Task<QueryResult<CatalogService[]>> ConnectService(string service, CancellationToken ct = default(CancellationToken));
+        Task<QueryResult<CatalogService[]>> ConnectService(string service, CancellationToken ct = default(CancellationToken), params string[] tags);
+        Task<QueryResult<CatalogService[]>> ConnectService(string service, QueryOptions q, CancellationToken ct = default(CancellationToken), params string[] tags);
     }
 }
