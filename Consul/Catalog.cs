@@ -18,8 +18,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Consul.Filtering;
 using Newtonsoft.Json;
 
 namespace Consul
@@ -177,6 +180,32 @@ namespace Consul
         public Task<QueryResult<Dictionary<string, string[]>>> Services(QueryOptions q, CancellationToken ct = default(CancellationToken))
         {
             return _client.Get<Dictionary<string, string[]>>("/v1/catalog/services", q).Execute(ct);
+        }
+
+        /// <summary>
+        /// ConnectService is used to query catalog entries for a service and returns only nodes that are Connect-capable.
+        /// </summary>
+        /// <param name="service">The service ID</param>
+        /// <param name="q">Customized query options</param>
+        /// <param name="ct">Cancellation token for long poll request. If set, OperationCanceledException will be thrown if the request is cancelled before completing</param>
+        /// <param name="tags">One or more tags to filter on.  A service must contain ALL tags to be returned.</param>
+        /// <seealso href="https://www.consul.io/docs/connect"/>
+        /// <returns>A list of Connect-capable service instances</returns>
+        public Task<QueryResult<CatalogService[]>> ConnectService(string service, QueryOptions q, CancellationToken ct = default(CancellationToken), params string[] tags)
+        {
+            TagsSelector tagSelector = new TagsSelector(null);
+            Filter tagFilter = null;
+
+            if(tags != null)
+            {
+                tagFilter = tags.Where(t => !string.IsNullOrWhiteSpace(t)).Select(tag => tagSelector.Contains(tag))
+                                .Aggregate((Filter) null,
+                                           (current, newFilter) =>
+                                               current == null ? newFilter : Filters.And(current, newFilter));
+            }
+
+            var req = _client.Get<CatalogService[]>($"/v1/catalog/connect/{service}", q, tagFilter);
+            return req.Execute(ct);
         }
 
         /// <summary>
