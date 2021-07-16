@@ -186,6 +186,31 @@ namespace Consul
         /// ConnectService is used to query catalog entries for a service and returns only nodes that are Connect-capable.
         /// </summary>
         /// <param name="service">The service ID</param>
+        /// <param name="ct">Cancellation token for long poll request. If set, OperationCanceledException will be thrown if the request is cancelled before completing</param>
+        /// <seealso href="https://www.consul.io/docs/connect"/>
+        /// <returns>A list of Connect-capable service instances</returns>
+        public Task<QueryResult<CatalogService[]>> ConnectService(string service, CancellationToken ct = default(CancellationToken))
+        {
+            return ConnectService(service, null, ct, null);
+        }
+
+        /// <summary>
+        /// ConnectService is used to query catalog entries for a service and returns only nodes that are Connect-capable.
+        /// </summary>
+        /// <param name="service">The service ID</param>
+        /// <param name="ct">Cancellation token for long poll request. If set, OperationCanceledException will be thrown if the request is cancelled before completing</param>
+        /// <param name="tags">One or more tags to filter on.  A service must contain ALL tags to be returned.</param>
+        /// <seealso href="https://www.consul.io/docs/connect"/>
+        /// <returns>A list of Connect-capable service instances</returns>
+        public Task<QueryResult<CatalogService[]>> ConnectService(string service, CancellationToken ct = default(CancellationToken), params string[] tags)
+        {
+            return ConnectService(service, null, ct, tags);
+        }
+
+        /// <summary>
+        /// ConnectService is used to query catalog entries for a service and returns only nodes that are Connect-capable.
+        /// </summary>
+        /// <param name="service">The service ID</param>
         /// <param name="q">Customized query options</param>
         /// <param name="ct">Cancellation token for long poll request. If set, OperationCanceledException will be thrown if the request is cancelled before completing</param>
         /// <param name="tags">One or more tags to filter on.  A service must contain ALL tags to be returned.</param>
